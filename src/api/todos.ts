@@ -1,7 +1,7 @@
 import { Todo } from '../types/Todo';
 import { client } from '../utils/fetchClient';
 
-export const USER_ID = 12345; // ← заміни на свій userId
+export const USER_ID = 3170; // ← заміни на свій userId
 
 const TODOS_URL = `/todos?userId=${USER_ID}`;
 

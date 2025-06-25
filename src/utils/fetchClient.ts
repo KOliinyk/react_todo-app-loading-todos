@@ -25,9 +25,14 @@ function request<T>(
     .then(() => fetch(BASE_URL + url, options))
     .then(response => {
       if (!response.ok) {
-        return response.json().then(error => {
-          throw new Error(error?.message || 'Something went wrong');
-        });
+        return response
+          .json()
+          .then(error => {
+            throw new Error(error?.message || 'Something went wrong');
+          })
+          .catch(() => {
+            throw new Error('Something went wrong');
+          });
       }
 
       return response.json();

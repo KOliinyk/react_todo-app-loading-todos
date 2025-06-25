@@ -1,36 +1,48 @@
-import { useEffect, useState } from 'react';
-import { Todo, ApiError } from './types/Todo';
-import { getTodos, addTodo, deleteTodo, toggleTodo } from './api/todos';
+import React, { useEffect, useState } from 'react';
+import './styles/index.scss';
 
-export const App = () => {
+import { Todo } from './types/Todo';
+import {
+  getTodos,
+  addTodo,
+  deleteTodo,
+  toggleTodo,
+  updateTodoTitle,
+} from './api/todos';
+
+import { Header } from './components/Header';
+import { TodoList } from './components/TodoList';
+import { Footer } from './components/Footer';
+import { Notification } from './components/Notification';
+
+export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTitle, setNewTitle] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const [newTitle, setNewTitle] = useState('');
-  const [isAdding, setIsAdding] = useState(false);
-
-  const loadTodos = async () => {
-    setErrorMessage('');
-    setIsLoading(true);
-
-    try {
-      const data = await getTodos();
-
-      setTodos(data);
-    } catch (error: unknown) {
-      const err = error as ApiError;
-
-      setErrorMessage(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Load todos on mount
   useEffect(() => {
+    const loadTodos = async () => {
+      setErrorMessage('');
+      setIsLoading(true);
+
+      try {
+        const data = await getTodos();
+
+        setTodos(data);
+      } catch (error) {
+        setErrorMessage((error as Error).message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     loadTodos();
   }, []);
 
+  // Add new todo
   const handleAddTodo = async () => {
     if (!newTitle.trim()) {
       setErrorMessage('Title is required');
@@ -44,85 +56,47 @@ export const App = () => {
 
       setTodos(prev => [...prev, newTodo]);
       setNewTitle('');
-    } catch (error: unknown) {
-      const err = error as ApiError;
-
-      setErrorMessage(err.message);
+    } catch (error) {
+      setErrorMessage('Unable to add a todo');
     } finally {
       setIsAdding(false);
     }
   };
 
-  const handleDeleteTodo = async (id: number) => {
-    try {
-      await deleteTodo(id);
-      setTodos(prev => prev.filter(todo => todo.id !== id));
-    } catch (error: unknown) {
-      const err = error as ApiError;
-
-      setErrorMessage(err.message);
-    }
-  };
-
-  const handleToggleTodo = async (todo: Todo) => {
-    try {
-      const updated = await toggleTodo(todo);
-
-      setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
-    } catch (error: unknown) {
-      const err = error as ApiError;
-
-      setErrorMessage(err.message);
-    }
-  };
-
   return (
     <div className="todoapp">
-      <h1>Todos</h1>
+      <h1 className="todoapp__title">todos</h1>
 
-      {errorMessage && (
-        <div className="notification is-danger is-light">
-          <button
-            className="delete"
-            onClick={() => setErrorMessage('')}
-          ></button>
-          {errorMessage}
-        </div>
-      )}
+      <div className="todoapp__content">
+        <Header
+          newTitle={newTitle}
+          setNewTitle={setNewTitle}
+          handleAddTodo={handleAddTodo}
+          isAdding={isAdding}
+        />
 
-      {isLoading ? (
-        <p>Loading...</p>
-      ) : (
-        <>
-          <input
-            type="text"
-            value={newTitle}
-            onChange={e => setNewTitle(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleAddTodo()}
-            placeholder="What needs to be done?"
-            disabled={isAdding}
-          />
-          <button onClick={handleAddTodo} disabled={isAdding}>
-            Add
-          </button>
+        {isLoading ? (
+          <p className="has-text-centered">Loading...</p>
+        ) : (
+          <>
+            <TodoList
+              todos={todos}
+              setTodos={setTodos}
+              deleteTodo={deleteTodo}
+              toggleTodo={toggleTodo}
+              updateTodoTitle={updateTodoTitle}
+              setErrorMessage={setErrorMessage}
+            />
 
-          <ul>
-            {todos.map(todo => (
-              <li key={todo.id}>
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  onChange={() => handleToggleTodo(todo)}
-                />
-                <span>{todo.title}</span>
-                <button onClick={() => handleDeleteTodo(todo.id)}>
-                  Delete
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+            {todos.length > 0 && <Footer todos={todos} setTodos={setTodos} />}
+          </>
+        )}
+      </div>
+
+      <Notification
+        message={errorMessage}
+        onClose={() => setErrorMessage('')}
+      />
     </div>
   );
 };

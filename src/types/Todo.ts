@@ -4,7 +4,3 @@ export interface Todo {
   title: string;
   completed: boolean;
 }
-
-export type ApiError = {
-  message: string;
-};
