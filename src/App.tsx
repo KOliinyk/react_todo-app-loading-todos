@@ -16,6 +16,7 @@ import { Footer } from './components/Footer';
 import { Notification } from './components/Notification';
 
 export const App: React.FC = () => {
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [todos, setTodos] = useState<Todo[]>([]);
   const [newTitle, setNewTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -63,6 +64,18 @@ export const App: React.FC = () => {
     }
   };
 
+  // Фільтрація видимих todo
+  const visibleTodos = todos.filter(todo => {
+    switch (filter) {
+      case 'active':
+        return !todo.completed;
+      case 'completed':
+        return todo.completed;
+      default:
+        return true;
+    }
+  });
+
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
@@ -80,7 +93,7 @@ export const App: React.FC = () => {
         ) : (
           <>
             <TodoList
-              todos={todos}
+              todos={visibleTodos}
               setTodos={setTodos}
               deleteTodo={deleteTodo}
               toggleTodo={toggleTodo}
@@ -88,7 +101,16 @@ export const App: React.FC = () => {
               setErrorMessage={setErrorMessage}
             />
 
-            {todos.length > 0 && <Footer todos={todos} setTodos={setTodos} />}
+            {todos.length > 0 && (
+              <Footer
+                todos={todos}
+                setTodos={setTodos}
+                filter={filter}
+                setFilter={setFilter}
+                deleteTodo={deleteTodo}
+                setErrorMessage={setErrorMessage}
+              />
+            )}
           </>
         )}
       </div>

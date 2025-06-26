@@ -16,8 +16,10 @@ export const TodoList: React.FC<Props> = ({
   setTodos,
   deleteTodo,
   toggleTodo,
+  updateTodoTitle,
   setErrorMessage,
 }) => {
+  // Обробка видалення todo
   const handleDelete = async (id: number) => {
     try {
       await deleteTodo(id);
@@ -27,6 +29,7 @@ export const TodoList: React.FC<Props> = ({
     }
   };
 
+  // Обробка переключення completed
   const handleToggle = async (todo: Todo) => {
     try {
       const updated = await toggleTodo(todo);
@@ -34,6 +37,17 @@ export const TodoList: React.FC<Props> = ({
       setTodos(prev => prev.map(t => (t.id === updated.id ? updated : t)));
     } catch {
       setErrorMessage('Unable to update a todo');
+    }
+  };
+
+  // Обробка оновлення назви
+  const handleUpdateTitle = async (id: number, title: string) => {
+    try {
+      const updated = await updateTodoTitle(id, title);
+
+      setTodos(prev => prev.map(t => (t.id === id ? updated : t)));
+    } catch {
+      setErrorMessage('Unable to update todo title');
     }
   };
 
@@ -45,6 +59,7 @@ export const TodoList: React.FC<Props> = ({
           todo={todo}
           onToggle={handleToggle}
           onDelete={handleDelete}
+          onUpdateTitle={handleUpdateTitle} // ← Додаємо
         />
       ))}
     </section>
