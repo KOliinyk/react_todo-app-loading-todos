@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 
 type Props = {
   message: string;
@@ -17,7 +18,13 @@ export const Notification: React.FC<Props> = ({ message, onClose }) => {
   return (
     <div
       data-cy="ErrorNotification"
-      className={`notification is-danger is-light has-text-weight-normal ${!message ? 'hidden' : ''}`}
+      className={classNames(
+        'notification',
+        'is-danger',
+        'is-light',
+        'has-text-weight-normal',
+        { hidden: !message },
+      )}
     >
       <button
         data-cy="HideErrorButton"

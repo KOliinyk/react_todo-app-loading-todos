@@ -36,7 +36,7 @@ export const TodoItem: React.FC<Props> = ({
     if (trimmed && trimmed !== todo.title) {
       onUpdateTitle(todo.id, trimmed);
     } else {
-      setTitle(todo.title); // повертаємо оригінальну назву
+      setTitle(todo.title);
     }
   };
 
@@ -51,17 +51,16 @@ export const TodoItem: React.FC<Props> = ({
 
   return (
     <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
-      <input
-        id={`status-${todo.id}`}
-        data-cy="TodoStatus"
-        type="checkbox"
-        className="todo__status"
-        checked={todo.completed}
-        onChange={() => onToggle(todo)}
-      />
-
       <label htmlFor={`status-${todo.id}`} className="todo__status-label">
-        Toggle status
+        <input
+          id={`status-${todo.id}`}
+          data-cy="TodoStatus"
+          type="checkbox"
+          className="todo__status"
+          checked={todo.completed}
+          onChange={() => onToggle(todo)}
+          aria-label="Перемикання стану завдання"
+        />
       </label>
 
       {isEditing ? (
