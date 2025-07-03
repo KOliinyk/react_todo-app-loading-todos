@@ -1,97 +1,45 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { Todo } from '../types/Todo';
+import { TodoLoader } from './TodoLoader';
 
 type Props = {
-  todo: Todo;
-  onToggle: (todo: Todo) => void;
-  onDelete: (id: number) => void;
-  onUpdateTitle: (id: number, title: string) => void;
+  todos: Todo[];
+  toggleTodo: (todo: Todo) => void;
+  isLoading: boolean;
 };
 
-export const TodoItem: React.FC<Props> = ({
-  todo,
-  onToggle,
-  onDelete,
-  onUpdateTitle,
-}) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [title, setTitle] = useState(todo.title);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isEditing]);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleSubmit = () => {
-    const trimmed = title.trim();
-
-    setIsEditing(false);
-
-    if (trimmed && trimmed !== todo.title) {
-      onUpdateTitle(todo.id, trimmed);
-    } else {
-      setTitle(todo.title);
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSubmit();
-    } else if (event.key === 'Escape') {
-      setTitle(todo.title);
-      setIsEditing(false);
-    }
-  };
-
+export const TodoItem: React.FC<Props> = ({ todos, toggleTodo, isLoading }) => {
   return (
-    <div data-cy="Todo" className={`todo ${todo.completed ? 'completed' : ''}`}>
-      <label htmlFor={`status-${todo.id}`} className="todo__status-label">
-        <input
-          id={`status-${todo.id}`}
-          data-cy="TodoStatus"
-          type="checkbox"
-          className="todo__status"
-          checked={todo.completed}
-          onChange={() => onToggle(todo)}
-          aria-label="Перемикання стану завдання"
-        />
-      </label>
-
-      {isEditing ? (
-        <input
-          ref={inputRef}
-          type="text"
-          className="todo__title-field"
-          value={title}
-          onChange={e => setTitle(e.target.value)}
-          onKeyDown={handleKeyDown}
-          onBlur={handleSubmit}
-          data-cy="TodoTitleField"
-        />
-      ) : (
-        <span
-          data-cy="TodoTitle"
-          className="todo__title"
-          onDoubleClick={handleEdit}
+    <>
+      {todos.map(todo => (
+        <div
+          data-cy="Todo"
+          className={`todo ${todo.completed && `completed`}`}
+          key={todo.id}
         >
-          {todo.title}
-        </span>
-      )}
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control */}
+          <label className="todo__status-label">
+            <input
+              data-cy="TodoStatus"
+              type="checkbox"
+              className="todo__status"
+              checked={todo.completed}
+              onChange={() => toggleTodo(todo)}
+            />
+          </label>
 
-      <button
-        type="button"
-        className="todo__remove"
-        data-cy="TodoDelete"
-        onClick={() => onDelete(todo.id)}
-      >
-        ×
-      </button>
-    </div>
+          <span data-cy="TodoTitle" className="todo__title">
+            {todo.title}
+          </span>
+
+          {/* Remove button appears only on hover */}
+          <button type="button" className="todo__remove" data-cy="TodoDelete">
+            ×
+          </button>
+
+          {/* overlay will cover the todo while it is being deleted or updated */}
+          <TodoLoader isLoading={isLoading} />
+        </div>
+      ))}
+    </>
   );
 };

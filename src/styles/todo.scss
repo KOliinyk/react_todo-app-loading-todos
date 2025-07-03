@@ -1,4 +1,6 @@
 .todo {
+  position: relative;
+  padding-right: 320px;
   display: grid;
   grid-template-columns: 45px 1fr;
   align-items: center; // ← це ключ!
@@ -36,36 +38,37 @@
     color: #d9d9d9;
     text-decoration: line-through;
   }
-
+  
   &__remove {
-    position: absolute;
-    right: 12px;
-    top: 0;
-    bottom: 0;
+  position: absolute;
+  right: 12px;          // 👈 відступ від правого краю
+  top: 50%;             // 👈 центрування по вертикалі
+  bottom: auto;         // 👈 видаляємо bottom
+  transform: translateY(-50%); // 👈 точне центрування
 
-    font-size: 120%;
-    line-height: 1;
-    font-family: inherit;
-    font-weight: inherit;
-    color: #cc9a9a;
+  font-size: 120%;
+  line-height: 1;
+  font-family: inherit;
+  font-weight: inherit;
+  color: #cc9a9a;
 
-    float: right;
-    border: 0;
-    background: none;
-    cursor: pointer;
+  float: left;
+  border: 0;
+  background: none;
+  cursor: pointer;
 
-    transform: translateY(-2px);
-    opacity: 0;
-    transition: color 0.2s ease-out;
+  opacity: 0;
+  transition: color 0.2s ease-out;
 
-    &:hover {
-      color: #af5b5e;
-    }
+  &:hover {
+    color: #af5b5e;
   }
+}
 
-  &:hover &__remove {
-    opacity: 1;
-  }
+&:hover &__remove {
+  opacity: 1;
+}
+
 
   &__title-field {
     width: 100%;
