@@ -7,8 +7,12 @@ export const getTodos = () => {
   return client.get<Todo[]>(`/todos?userId=${USER_ID}`);
 };
 
-export function addTodo({ userId, title, completed }: Omit<Todo, 'id'>) {
-  return client.post<Todo>(`/todos`, { userId, title, completed });
+export function addTodo(title: string) {
+  return client.post<Todo>(`/todos`, {
+    userId: USER_ID,
+    title,
+    completed: false,
+  });
 }
 
 export function updateCompleted(todoId: number, completed: boolean) {
