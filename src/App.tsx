@@ -7,25 +7,20 @@ import { TodoFooter } from './components/TodoFooter';
 import { ErrorNotification } from './components/ErrorNotification';
 import { Todo } from './types/Todo';
 import { ErrorType } from './types/ErrorType';
+import { Filter } from './types/Filter';
 
-function getFilteredTodos(
+export function getFilteredTodos(
   currentTodos: Todo[],
-  currentFilter: 'all' | 'active' | 'completed',
-) {
-  const filteredTodos = [...currentTodos];
-
+  currentFilter: Filter,
+): Todo[] {
   switch (currentFilter) {
-    case 'active':
-      return filteredTodos.filter(todo => !todo.completed);
-
-    case 'completed':
-      return filteredTodos.filter(todo => todo.completed);
-
-    case 'all':
-      return filteredTodos;
-
+    case Filter.Active:
+      return currentTodos.filter(todo => !todo.completed);
+    case Filter.Completed:
+      return currentTodos.filter(todo => todo.completed);
+    case Filter.All:
     default:
-      return;
+      return currentTodos;
   }
 }
 
@@ -33,11 +28,10 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ErrorType | ''>('');
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [filter, setFilter] = useState<Filter>(Filter.All);
 
   useEffect(() => {
     setIsLoading(true);
-
     todoService
       .getTodos()
       .then(setTodos)
@@ -53,6 +47,8 @@ export const App: React.FC = () => {
 
       return;
     }
+
+    setError('');
 
     try {
       const newTodo = await todoService.addTodo(title.trim());
@@ -78,11 +74,11 @@ export const App: React.FC = () => {
     }
   };
 
-  const visibleTodos = getFilteredTodos(todos, filter);
-
   if (!todoService.USER_ID) {
     return <UserWarning />;
   }
+
+  const visibleTodos = getFilteredTodos(todos, filter);
 
   return (
     <div className="todoapp">
@@ -91,7 +87,7 @@ export const App: React.FC = () => {
       <div className="todoapp__content">
         <TodoHeader onAdd={handleAddTodo} todos={todos} />
         <TodoList
-          todos={visibleTodos ?? []}
+          todos={visibleTodos}
           toggleTodo={toggleTodo}
           isLoading={isLoading}
         />
@@ -103,6 +99,7 @@ export const App: React.FC = () => {
           />
         )}
       </div>
+
       <ErrorNotification errorMessage={error} onClose={() => setError('')} />
     </div>
   );
